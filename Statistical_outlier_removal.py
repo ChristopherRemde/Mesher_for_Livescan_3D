@@ -15,7 +15,6 @@ sd =  numpy.std(quality_list_with_statistical_outliers, axis= 0)
 print ("The Standard Deviation of the vertex radius is: " + sd.__str__())
 
 print("Removing all vertices above sigma of " + remove_all_vertices_above_sd_sigma_of.__str__())
-#removed_upper_end_sd = [x for x in quality_list_with_statistical_outliers if (x < mean + 1.5 * sd)]
 
 
 list_of_vertices_without_SO = []
