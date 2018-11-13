@@ -1,13 +1,14 @@
 import os
 from plyfile import PlyData, PlyElement
 import numpy
+import re
 
 
 path_to_meshlab_dir: str = "C:\Program Files\VCG\MeshLab\meshlabserver"
 path_to_liveScan3D_files: str = "C:\\Users\\futur\Desktop\BachelorCR\TestSet_Kinect_Recording\\"
 path_to_mesher_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\mesher.mlx"
 path_to_SOR_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\SOR.mlx"
-path_to_output: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\Mesher\output\\"
+path_to_output: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\Mesher\Mesher_for_Livescan_3D\\output\\"
 
 
 def get_list_of_sorted_liveScan3D_files():
@@ -33,20 +34,35 @@ def get_number_of_depth_sensors_used(list_of_all_files):
             return previous_depth_sensor_number
 
 
-def meshlabserver_cmd_promt_creator(list_of_all_files, frame_to_process, number_of_frames,input_path, script_path, output_path,  prefix_string, output_format, output_flags):
+def meshlabserver_cmd_promt_creator_single_file(frame_name, input_path, script_path, output_path, prefix_string, output_format, output_flags):
+    input_cmd: str = " -i "
+    output_cmd: str = " -o "
+    script_cmd: str = " -s "
+
+    meshlabserver_input_cmds = input_cmd + input_path + frame_name
+
+    temp_filenametouple = frame_name.split(".")  # Generate output filename with current output format
+    output_file_name = temp_filenametouple[0] + output_format
+
+    cmd_promt = path_to_meshlab_dir + meshlabserver_input_cmds + output_cmd + output_path + prefix_string + \
+                output_file_name + output_flags + script_cmd + script_path
+    file_output_path = output_path + prefix_string + output_file_name
+    print("Final command given to meshlabserver: " + cmd_promt)
+    cmd_promt_and_output_path = (cmd_promt, file_output_path)
+    return cmd_promt_and_output_path
+
+def meshlabserver_cmd_promt_creator_multiple_files(list_of_files, input_path, script_path, output_path, prefix_string, output_format, output_flags):
     input_cmd: str = " -i "
     output_cmd: str = " -o "
     script_cmd: str = " -s "
     meshlabserver_input_cmds = ""
     kinect_counter = 0
 
-    for kinect in range(number_of_frames):
-        meshlabserver_input_cmds = meshlabserver_input_cmds + input_cmd + input_path + list_of_all_files[
-            frame_to_process + kinect_counter]
-        kinect_counter += 1
+    for frames in list_of_files:
+        meshlabserver_input_cmds = meshlabserver_input_cmds + input_cmd + input_path + frames
 
-    temp_filenametouple = list_of_all_files[frame_to_process].split(".")  # Generate output filename with corrent output format
-    output_file_name = temp_filenametouple[0] + output_format
+    file_number = s = ''.join(x for x in list_of_files[0] if x.isdigit())
+    output_file_name = file_number + output_format
 
     cmd_promt = path_to_meshlab_dir + meshlabserver_input_cmds + output_cmd + output_path + prefix_string + \
                 output_file_name + output_flags + script_cmd + script_path
@@ -121,26 +137,26 @@ def main_loop():
 
     for frame in range(frames_to_process.__int__()):
 
+        coherent_frames = []
+
         # Statistic Outlier Removal
         for index, kinect in enumerate(range(number_of_depth_sensors)):
-            cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator(list_of_files_to_process,
-                                                                                     current_frame_to_process + index,
-                                                                                     1,
-                                                                                     path_to_liveScan3D_files,
-                                                                                     path_to_SOR_script,
-                                                                                     tempdir, "temp_with_SO", ".ply",
-                                                                                     " -m vq")
+            cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_single_file(list_of_files_to_process[frame + index],
+                                                                                                 path_to_liveScan3D_files,
+                                                                                                 path_to_SOR_script,
+                                                                                                 tempdir, "temp_with_SO_", ".ply",
+                                                                                                 " -m vq")
             meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
-            statistical_outlier_removal(cmd_for_meshlabserver_with_output_path[1], tempdir + "temp_SOR_removed" + (current_frame_to_process + index).__str__() + ".ply")
+            temp_filenumber = list_of_files_to_process[current_frame_to_process + index].split(".")
+            statistical_outlier_removal(cmd_for_meshlabserver_with_output_path[1], tempdir + "temp_SOR_removed_" + temp_filenumber[0] + ".ply")
+            coherent_frames.append(("temp_SOR_removed_" + temp_filenumber[0] + ".ply"))
 
-        breakpoint()
+
         # Meshing
-        cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator(list_of_files_to_process,
-                                                                                 current_frame_to_process,
-                                                                                 number_of_depth_sensors,
-                                                                                 tempdir, path_to_output,
-                                                                                 path_to_mesher_script,
-                                                                                 "meshed", ".obj", "")
+        cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_multiple_files(coherent_frames,
+                                                                                             tempdir, path_to_mesher_script,
+                                                                                             path_to_output,
+                                                                                             "meshed", ".obj", "")
         meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
         current_frame_to_process += number_of_depth_sensors
     print("No more frames to process! Processed " + current_frame_to_process.__str__() + " frames. Program will exit now")
