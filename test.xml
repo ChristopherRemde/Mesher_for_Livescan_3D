@@ -1,0 +1,8 @@
+<FilterScript>
+ <filter name="Change the current layer">
+  <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="1" />
+ </filter>
+ <filter name="Change the current layer">
+  <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="1" />
+ </filter>
+ </FilterScript>

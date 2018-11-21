@@ -3,15 +3,17 @@ from plyfile import PlyData, PlyElement
 import numpy
 import sys
 import json
+import xml.etree.ElementTree as ET
 
 
 path_to_meshlab_dir: str = "C:\Program Files\VCG\MeshLab\\"
 path_to_liveScan3D_files: str = "C:\\Users\\futur\Desktop\BachelorCR\TestSet_Kinect_Recording\\"
-path_to_mesher_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\mesher.mlx"
+path_to_mesher_script_template: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\mesher.mlx"
+path_to_individual_mesher_template: str = "C:\\Users\\futur\\Desktop\\BachelorCR\\KinectToMesh\\Mesher\\Mesher_for_Livescan_3D\\meshing_individual_frame.mlx"
 path_to_SOR_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\SOR.mlx"
 path_to_output: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\Mesher\Mesher_for_Livescan_3D\\output\\"
 
-startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script, path_to_SOR_script]
+startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
 startUp_paths = [path_to_output, path_to_liveScan3D_files]
 
 ball_point_radius = 0
@@ -23,7 +25,6 @@ def check_path_and_file_integrity(list_of_files_to_check, list_of_paths_to_check
     if list_of_files_to_check.__len__() != 0:
         for file in list_of_files_to_check:
             file_exists = os.path.isfile(file)
-            print(file_exists)
             if not file_exists:
                 return False
 
@@ -57,7 +58,6 @@ def get_list_of_liveScan3D_files():
     if temp_list_of_files.__len__() == 0:
         sys.exit("No LiveScanFiles found, aborting program!")
 
-    print("LiveScan3D input files: " + temp_list_of_files.__str__())
     return temp_list_of_files
 
 
@@ -65,7 +65,6 @@ def get_number_of_depth_sensors_used(list_of_all_files):
     previous_depth_sensor_number = 0
     for frames in list_of_all_files:
         frame_string: str = frames
-        print(frame_string)
         number_of_current_depth_sensor = int(frame_string[5])
         if number_of_current_depth_sensor + 1 > previous_depth_sensor_number:
             previous_depth_sensor_number = number_of_current_depth_sensor +1
@@ -74,6 +73,7 @@ def get_number_of_depth_sensors_used(list_of_all_files):
             if previous_depth_sensor_number == 0:
                 sys.exit("Couldn't compute number of depth sensors")
             return previous_depth_sensor_number
+
 
 def get_camera_positions_dic_from_file():
 
@@ -96,6 +96,56 @@ def get_camera_positions_dic_from_file():
         sys.exit("camPose File not found, aborting!")
 
 
+def write_custom_mlx_file_template(number_of_cameras):
+
+    mlx_doc = ET.parse('mesher_template.mlx')  # Get the mlx template
+    root = mlx_doc.getroot()
+
+    mlx_change_current_layer = root[0]
+    mlx_compute_normals_for_point_sets = root[1]
+    mlx_flatten_visible_layer = root[2]
+    mlx_poisson_disk_sampling = root[3]
+    mlx_delete_current_mesh = root[4]
+    mlx_ball_pivoting = root[5]
+
+    childlist = []   # Delete all contents in root to get a clean template
+    for child in root:
+        childlist.append(child)
+    for child in childlist:
+        root.remove(child)
+
+    for cameras in range(number_of_cameras):   # Start the document by adding all the normal calculations for each cam
+
+        root.append(mlx_change_current_layer)
+        root.append(mlx_compute_normals_for_point_sets)
+
+    root.append(mlx_flatten_visible_layer)  # After normal calculations, flatten all layers to one
+    root.append(mlx_poisson_disk_sampling)
+    root.append(mlx_delete_current_mesh)
+    root.append(mlx_ball_pivoting)
+
+    mlx_doc.write("meshing_custom_template.mlx")
+
+
+def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
+    mlx_custom_doc = ET.parse('meshing_custom_template.mlx')  # Get the mlx template
+    root = mlx_custom_doc.getroot()
+
+    child_counter = 0
+    for cameras in range(number_of_cameras):  # Start the document by adding all the normal calculations for each cam
+
+        root[child_counter][0].set("value", str(cameras))
+        root[child_counter + 1][3].set("x", str(camera_positions["camPoses"][cameras]["x"]))
+        root[child_counter + 1][3].set("y", str(camera_positions["camPoses"][cameras]["y"]))
+        root[child_counter + 1][3].set("z", str(camera_positions["camPoses"][cameras]["z"]))
+
+        if cameras != (number_of_cameras - 1):  # Only increment the childcounter if there are more values to set in the loop
+            child_counter += 2
+
+    root[child_counter + 2].set("value", str(poisson_disk_vertices))
+    root[child_counter + 4].set("value", str(ball_point_radius))
+
+    mlx_custom_doc.write("meshing_individual_frame.mlx")
 
 
 def meshlabserver_cmd_promt_creator_single_file(frame_name, input_path, script_path, output_path, prefix_string, output_format, output_flags):
@@ -114,6 +164,7 @@ def meshlabserver_cmd_promt_creator_single_file(frame_name, input_path, script_p
     print("Final command given to meshlabserver: " + cmd_promt)
     cmd_promt_and_output_path = (cmd_promt, file_output_path)
     return cmd_promt_and_output_path
+
 
 def meshlabserver_cmd_promt_creator_multiple_files(list_of_files, input_path, script_path, output_path, prefix_string, output_format, output_flags):
     input_cmd: str = " -i "
@@ -157,7 +208,6 @@ def statistical_outlier_removal(input_file, output_file):
     # are above 68% of all vertex qualities, 2 means remove all above 95% ect. Default is 1.5 or 86%
 
     file_exists = os.path.isfile(input_file)
-    print(file_exists)
     if not file_exists:
         return False
 
@@ -193,9 +243,6 @@ def statistical_outlier_removal(input_file, output_file):
     poisson_disk_vertices = len(list_of_vertices_without_SO) / 2
     ball_point_radius = mean + remove_all_vertices_above_sd_sigma_of * sd
 
-    print(poisson_disk_vertices)
-    print(ball_point_radius)
-
     return True
 
 
@@ -209,12 +256,14 @@ def main_loop():
     # Set all static variables
     list_of_files_to_process = get_list_of_liveScan3D_files()
     number_of_depth_sensors = get_number_of_depth_sensors_used(list_of_files_to_process)
-    camPoseData = get_camera_positions_dic_from_file()
+    cam_pose_data = get_camera_positions_dic_from_file()
+
+    # Create a custom mlx file for meshing, depending on how many cameras there are in the scene
+    write_custom_mlx_file_template(number_of_depth_sensors)
 
     # Calculate how much frames need to be processed
-
     frames_to_process = len(list_of_files_to_process) / number_of_depth_sensors
-    frames_to_process = 5
+    #frames_to_process = 5
     print("Found " + frames_to_process.__str__() + " frames to process")
     print("Processing started")
     current_frame_to_process = 0  # Dont change!
@@ -241,12 +290,12 @@ def main_loop():
                 coherent_frames.append(("temp_SOR_removed_" + temp_filenumber[0] + ".ply"))
             else:
                 print("WARNING! Statistical Outlier Removal could not be performed due to missing input file!")
+        write_custom_mlx_file_for_each_frame(cam_pose_data, number_of_depth_sensors)
 
         # Meshing
         cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_multiple_files(coherent_frames,
-                                                                                             tempdir, path_to_mesher_script,
-                                                                                             path_to_output,
-                                                                                             "meshed", ".obj", "")
+                                                                                                tempdir, path_to_individual_mesher_template,
+                                                                                                path_to_output, "meshed", ".obj", "")
         meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
         current_frame_to_process += number_of_depth_sensors
     print("No more frames to process! Processed " + current_frame_to_process.__str__() + " frames. Program will perform cleanup & exit shortly")
