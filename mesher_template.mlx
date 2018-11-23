@@ -37,4 +37,32 @@
   <Param name="CreaseThr" tooltip="If we encounter a crease angle that is too large we should stop the ball rolling" description="Angle Threshold (degrees)" value="90" type="RichFloat"/>
   <Param name="DeleteFaces" tooltip="if true all the initial faces of the mesh are deleted and the whole surface is rebuilt from scratch, other wise the current faces are used as a starting point. Useful if you run multiple times the algorithm with an incrasing ball radius." description="Delete intial set of faces" value="false" type="RichBool"/>
  </filter>
+ <xmlfilter name="Screened Poisson Surface Reconstruction">
+  <xmlparam name="cgDepth" value="0"/>
+  <xmlparam name="confidence" value="false"/>
+  <xmlparam name="depth" value="8"/>
+  <xmlparam name="fullDepth" value="5"/>
+  <xmlparam name="iters" value="8"/>
+  <xmlparam name="pointWeight" value="4"/>
+  <xmlparam name="preClean" value="true"/>
+  <xmlparam name="samplesPerNode" value="5"/>
+  <xmlparam name="scale" value="1.1"/>
+  <xmlparam name="visibleLayer" value="false"/>
+ </xmlfilter>
+ <filter name="Estimate radius from density">
+  <Param name="NbNeighbors" description="Number of neighbors" value="16" type="RichInt" tooltip="Number of neighbors used to estimate the local density. Larger values lead to smoother variations."/>
+ </filter>
+ <filter name="Per Vertex Quality Function">
+  <Param name="q" description="func q = " value="rad" type="RichString" tooltip="function to generate new Quality for every vertex"/>
+  <Param name="normalize" description="normalize" value="false" type="RichBool" tooltip="if checked normalize all quality values in range [0..1]"/>
+  <Param name="map" description="map into color" value="true" type="RichBool" tooltip="if checked map quality generated values into per-vertex color"/>
+  <Param name="onselected" description="only on selection" value="false" type="RichBool" tooltip="if checked, only affects selected vertices"/>
+ </filter>
+ <filter name="Select by Vertex Quality">
+  <Param name="minQ" max="0.124661" description="Min Quality" value="0.021199" type="RichDynamicFloat" min="0.00435702" tooltip="Minimum acceptable quality value"/>
+  <Param name="maxQ" max="0.124661" description="Max Quality" value="0.124661" type="RichDynamicFloat" min="0.00435702" tooltip="Maximum acceptable quality value"/>
+  <Param name="Inclusive" description="Inclusive Sel." value="true" type="RichBool" tooltip="If true only the faces with &lt;b>all&lt;/b> the vertices within the specified range are selected. Otherwise any face with at least one vertex within the range is selected."/>
+ </filter>
+ <filter name="Delete Selected Vertices">
+ </filter>
 </FilterScript>

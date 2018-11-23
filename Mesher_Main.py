@@ -5,16 +5,21 @@ import sys
 import json
 import xml.etree.ElementTree as ET
 
-
+# Settings
 path_to_meshlab_dir: str = "C:\Program Files\VCG\MeshLab\\"
 path_to_liveScan3D_files: str = "C:\\Users\\futur\Desktop\BachelorCR\TestSet_Kinect_Recording\\"
 path_to_mesher_script_template: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\mesher.mlx"
 path_to_individual_mesher_template: str = "C:\\Users\\futur\\Desktop\\BachelorCR\\KinectToMesh\\Mesher\\Mesher_for_Livescan_3D\\meshing_individual_frame.mlx"
 path_to_SOR_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\SOR.mlx"
+path_to_SSPR_script = "C:\\Users\\futur\\Desktop\\BachelorCR\\KinectToMesh\\Mesher\\Mesher_for_Livescan_3D\\SSPR_template.mlx"
 path_to_output: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\Mesher\Mesher_for_Livescan_3D\\output\\"
 
 startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
 startUp_paths = [path_to_output, path_to_liveScan3D_files]
+
+useSSPR = False
+
+# Global variables
 
 ball_point_radius = 0
 poisson_disk_vertices = 0
@@ -87,10 +92,10 @@ def get_camera_positions_dic_from_file():
             camPose_deserialized = json.loads(camPose_json)
 
             return camPose_deserialized
+
         except:
             sys.exit("Error while deserializing camPose File. Have you edited the camPose File manually? Check for "
                      "JSON Format errors! Aborting...")
-
 
     else:
         sys.exit("camPose File not found, aborting!")
@@ -107,6 +112,11 @@ def write_custom_mlx_file_template(number_of_cameras):
     mlx_poisson_disk_sampling = root[3]
     mlx_delete_current_mesh = root[4]
     mlx_ball_pivoting = root[5]
+    mlx_sspr = root[6]
+    mlx_estimate_radius = root[7]
+    mlx_per_vertex_quality = root[8]
+    mlx_select_by_vertex_quality = root[9]
+    mlx_delete_selected_vertices = root[10]
 
     childlist = []   # Delete all contents in root to get a clean template
     for child in root:
@@ -122,7 +132,11 @@ def write_custom_mlx_file_template(number_of_cameras):
     root.append(mlx_flatten_visible_layer)  # After normal calculations, flatten all layers to one
     root.append(mlx_poisson_disk_sampling)
     root.append(mlx_delete_current_mesh)
-    root.append(mlx_ball_pivoting)
+    if useSSPR:
+        root.append(mlx_sspr)
+        root.append(mlx_delete_current_mesh)
+    else:
+        root.append(mlx_ball_pivoting)
 
     mlx_doc.write("meshing_custom_template.mlx")
 
@@ -155,8 +169,8 @@ def meshlabserver_cmd_promt_creator_single_file(frame_name, input_path, script_p
 
     meshlabserver_input_cmds = input_cmd + input_path + frame_name
 
-    temp_filenametouple = frame_name.split(".")  # Generate output filename with current output format
-    output_file_name = temp_filenametouple[0] + output_format
+    file_number = s = ''.join(x for x in frame_name if x.isdigit())
+    output_file_name = file_number + output_format
 
     cmd_promt = path_to_meshlab_dir + "meshlabserver" + meshlabserver_input_cmds + output_cmd + output_path + prefix_string + \
                 output_file_name + output_flags + script_cmd + script_path
@@ -181,13 +195,14 @@ def meshlabserver_cmd_promt_creator_multiple_files(list_of_files, input_path, sc
     cmd_promt = path_to_meshlab_dir + "meshlabserver" + meshlabserver_input_cmds + output_cmd + output_path + prefix_string + \
                 output_file_name + output_flags + script_cmd + script_path
     file_output_path = output_path + prefix_string + output_file_name
-    print("Final command given to meshlabserver: " + cmd_promt)
+    print("Created Command: " + cmd_promt)
     cmd_promt_and_output_path = (cmd_promt, file_output_path)
     return cmd_promt_and_output_path
 
 
 def meshlabserver_supervisor(cmd_to_call, file_output_path):
     from subprocess import call
+    print("Calling Meshlabserver with command: " + cmd_to_call)
     call(cmd_to_call)
     print("MeshlabServer finished operation")
     file_exists = os.path.isfile(file_output_path)
@@ -249,7 +264,6 @@ def statistical_outlier_removal(input_file, output_file):
 def main_loop():
 
     # Check if paths and files are valid
-
     if not check_path_and_file_integrity(startUp_files, startUp_paths):
         sys.exit("Startup files and paths are not vallid!")
 
@@ -297,7 +311,17 @@ def main_loop():
                                                                                                 tempdir, path_to_individual_mesher_template,
                                                                                                 path_to_output, "meshed", ".obj", "")
         meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
+
         current_frame_to_process += number_of_depth_sensors
+
+        # Delete temp files
+
+        temp_files_to_delete = []
+        for file in os.listdir(tempdir):
+            temp_files_to_delete.append(tempdir + file)
+
+        cleanup_files(temp_files_to_delete, [])
+
     print("No more frames to process! Processed " + current_frame_to_process.__str__() + " frames. Program will perform cleanup & exit shortly")
     cleanup_files([], [tempdir])
 

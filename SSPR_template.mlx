@@ -1,0 +1,29 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <xmlfilter name="Screened Poisson Surface Reconstruction">
+  <xmlparam name="cgDepth" value="0"/>
+  <xmlparam name="confidence" value="false"/>
+  <xmlparam name="depth" value="8"/>
+  <xmlparam name="fullDepth" value="5"/>
+  <xmlparam name="iters" value="8"/>
+  <xmlparam name="pointWeight" value="4"/>
+  <xmlparam name="preClean" value="true"/>
+  <xmlparam name="samplesPerNode" value="5"/>
+  <xmlparam name="scale" value="1.1"/>
+  <xmlparam name="visibleLayer" value="false"/>
+ </xmlfilter>
+ <filter name="Change the current layer">
+  <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="0" />
+ </filter>
+ <filter name="Delete Current Mesh">
+ </filter>
+ <filter name="Estimate radius from density">
+  <Param name="NbNeighbors" description="Number of neighbors" value="16" type="RichInt" tooltip="Number of neighbors used to estimate the local density. Larger values lead to smoother variations."/>
+ </filter>
+ <filter name="Per Vertex Quality Function">
+  <Param name="q" description="func q = " value="rad" type="RichString" tooltip="function to generate new Quality for every vertex"/>
+  <Param name="normalize" description="normalize" value="false" type="RichBool" tooltip="if checked normalize all quality values in range [0..1]"/>
+  <Param name="map" description="map into color" value="true" type="RichBool" tooltip="if checked map quality generated values into per-vertex color"/>
+  <Param name="onselected" description="only on selection" value="false" type="RichBool" tooltip="if checked, only affects selected vertices"/>
+ </filter>
+</FilterScript>
