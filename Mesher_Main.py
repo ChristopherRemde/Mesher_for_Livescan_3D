@@ -5,19 +5,18 @@ import sys
 import json
 import xml.etree.ElementTree as ET
 
+working_dir = os.getcwd()
+
 # Settings
-path_to_meshlab_dir: str = "C:\Program Files\VCG\MeshLab\\"
+path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
 path_to_liveScan3D_files: str = "C:\\Users\\futur\Desktop\BachelorCR\TestSet_Kinect_Recording\\"
-path_to_mesher_script_template: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\mesher.mlx"
-path_to_individual_mesher_template: str = "C:\\Users\\futur\\Desktop\\BachelorCR\\KinectToMesh\\Mesher\\Mesher_for_Livescan_3D\\meshing_individual_frame.mlx"
-path_to_SOR_script: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\SOR.mlx"
-path_to_SSPR_script = "C:\\Users\\futur\\Desktop\\BachelorCR\\KinectToMesh\\Mesher\\Mesher_for_Livescan_3D\\SSPR_template.mlx"
-path_to_output: str = "C:\\Users\\futur\Desktop\BachelorCR\KinectToMesh\Mesher\Mesher_for_Livescan_3D\\output\\"
+path_to_mesher_script_template: str = working_dir + "\\mesher.mlx"
+path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
+path_to_SOR_script: str = working_dir + "\\SOR.mlx"
+path_to_output: str = working_dir + "\\output\\"
 
 startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
 startUp_paths = [path_to_output, path_to_liveScan3D_files]
-
-useSSPR = False
 
 # Global variables
 
@@ -25,18 +24,24 @@ ball_point_radius = 0
 poisson_disk_vertices = 0
 
 
+def check_dir_make_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
 def check_path_and_file_integrity(list_of_files_to_check, list_of_paths_to_check):
 
     if list_of_files_to_check.__len__() != 0:
         for file in list_of_files_to_check:
             file_exists = os.path.isfile(file)
             if not file_exists:
+                print("Couldn't find file: " + file)
                 return False
 
     if list_of_paths_to_check.__len__() != 0:
         for path_dir in list_of_paths_to_check:
             dir_exists = os.path.isdir(path_dir)
             if not dir_exists:
+                print("Couldn't find directory: ")
                 return False
         return True
 
@@ -213,11 +218,6 @@ def meshlabserver_supervisor(cmd_to_call, file_output_path):
         meshlabserver_supervisor(cmd_to_call, file_output_path)
 
 
-def check_dir_make_dir(dir_path):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-
-
 def statistical_outlier_removal(input_file, output_file):
     remove_all_vertices_above_sd_sigma_of = 1.5  # In Standard Deviation sigma. E.g. 1 means remove all vertices that
     # are above 68% of all vertex qualities, 2 means remove all above 95% ect. Default is 1.5 or 86%
@@ -260,9 +260,48 @@ def statistical_outlier_removal(input_file, output_file):
 
     return True
 
+def userInterface ():
+    print("Mesher for LiveScan3D by ChrisR")
+    print("Starting Setup...")
+    ml_valid = False
+    global path_to_meshlab_dir
+    ml_path = path_to_meshlab_dir[:]
+    while ml_valid == False:
+        if check_path_and_file_integrity([], [ml_path]):
+            ml_valid = True
+        else:
+            print("Couldn't find Meshlab!")
+            ml_path = input("Please enter your Meshlab Path: ")
+
+    path_to_meshlab_dir = ml_path
+
+    ip_path = ""
+    ip_valid = False
+    while ip_valid == False:
+        if check_path_and_file_integrity([], [ip_path]):
+            ip_valid = True
+        else:
+            print("Couldn't find Meshlab!")
+            ip_path = input("Please enter the Path to the Meshlab .PLY Files: ")
+
+    global path_to_liveScan3D_files
+    path_to_liveScan3D_files = ml_path
+
+    yn = input("Do you want to use Poisson Reconstruction? (y/n): ")
+
+    if yn == "y":
+        global useSSPR
+        useSSPR = True
+    elif yn == "n":
+        useSSPR = False
+    else:
+        print("Invalid input!")
+        sys.exit("Invalid Input!")
+
 
 def main_loop():
 
+    check_dir_make_dir(path_to_output)
     # Check if paths and files are valid
     if not check_path_and_file_integrity(startUp_files, startUp_paths):
         sys.exit("Startup files and paths are not vallid!")

@@ -39,18 +39,10 @@
  </filter>
  <filter name="Delete Current Mesh">
  </filter>
- <xmlfilter name="Screened Poisson Surface Reconstruction">
-  <xmlparam name="cgDepth" value="0" />
-  <xmlparam name="confidence" value="false" />
-  <xmlparam name="depth" value="8" />
-  <xmlparam name="fullDepth" value="5" />
-  <xmlparam name="iters" value="8" />
-  <xmlparam name="pointWeight" value="4" />
-  <xmlparam name="preClean" value="true" />
-  <xmlparam name="samplesPerNode" value="5" />
-  <xmlparam name="scale" value="1.1" />
-  <xmlparam name="visibleLayer" value="false" />
- </xmlfilter>
- <filter name="Delete Current Mesh">
+ <filter name="Surface Reconstruction: Ball Pivoting">
+  <Param description="Pivoting Ball radius (0 autoguess)" max="3.40332" min="0" name="BallRadius" tooltip="The radius of the ball pivoting (rolling) over the set of points. Gaps that are larger than the ball radius will not be filled; similarly the small pits that are smaller than the ball radius will be filled." type="RichAbsPerc" value="0.016" />
+  <Param description="Clustering radius (% of ball radius)" name="Clustering" tooltip="To avoid the creation of too small triangles, if a vertex is found too close to a previous one, it is clustered/merged with it." type="RichFloat" value="20" />
+  <Param description="Angle Threshold (degrees)" name="CreaseThr" tooltip="If we encounter a crease angle that is too large we should stop the ball rolling" type="RichFloat" value="90" />
+  <Param description="Delete intial set of faces" name="DeleteFaces" tooltip="if true all the initial faces of the mesh are deleted and the whole surface is rebuilt from scratch, other wise the current faces are used as a starting point. Useful if you run multiple times the algorithm with an incrasing ball radius." type="RichBool" value="false" />
  </filter>
  </FilterScript>
