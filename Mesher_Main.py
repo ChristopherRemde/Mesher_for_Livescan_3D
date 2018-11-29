@@ -9,9 +9,10 @@ working_dir = os.getcwd()
 
 # Settings
 path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
-path_to_liveScan3D_files: str = "C:\\Users\\futur\Desktop\BachelorCR\TestSet_Kinect_Recording\\"
+path_to_liveScan3D_files: str = "C:\\Users\\ChrisSSD\\Desktop\\Bachelor\\LiveScan3D_Takes\\Kinect3_1\\"
 path_to_mesher_script_template: str = working_dir + "\\mesher.mlx"
 path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
+path_to_individual_vertex_reomver = working_dir + "\\remove_vertices_above_individual_frame.mlx"
 path_to_SOR_script: str = working_dir + "\\SOR.mlx"
 path_to_output: str = working_dir + "\\output\\"
 
@@ -22,6 +23,7 @@ startUp_paths = [path_to_output, path_to_liveScan3D_files]
 
 ball_point_radius = 0
 poisson_disk_vertices = 0
+useSSPR = True
 
 
 def check_dir_make_dir(dir_path):
@@ -140,6 +142,8 @@ def write_custom_mlx_file_template(number_of_cameras):
     if useSSPR:
         root.append(mlx_sspr)
         root.append(mlx_delete_current_mesh)
+        root.append(mlx_estimate_radius)
+        root.append(mlx_per_vertex_quality)
     else:
         root.append(mlx_ball_pivoting)
 
@@ -167,10 +171,23 @@ def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
     mlx_custom_doc.write("meshing_individual_frame.mlx")
 
 
+def write_custom_mlx_file_for_vertex_removal(remove_vertices_above):
+
+    mlx_custom_doc = ET.parse("custom_vertex_removal_template.mlx")
+    root = mlx_custom_doc.getroot()
+    root[0][0].set("value", str(remove_vertices_above))
+
+    mlx_custom_doc.write("remove_vertices_above_individual_frame.mlx")
+
+
+
 def meshlabserver_cmd_promt_creator_single_file(frame_name, input_path, script_path, output_path, prefix_string, output_format, output_flags):
     input_cmd: str = " -i "
     output_cmd: str = " -o "
     script_cmd: str = " -s "
+    if script_path == "":
+        script_cmd = ""
+
 
     meshlabserver_input_cmds = input_cmd + input_path + frame_name
 
@@ -189,6 +206,8 @@ def meshlabserver_cmd_promt_creator_multiple_files(list_of_files, input_path, sc
     input_cmd: str = " -i "
     output_cmd: str = " -o "
     script_cmd: str = " -s "
+    if script_path == "":
+        script_cmd = ""
     meshlabserver_input_cmds = ""
 
     for frames in list_of_files:
@@ -239,26 +258,52 @@ def statistical_outlier_removal(input_file, output_file):
 
     list_of_vertices_without_SO = []
 
+
     for index, x in enumerate(quality_list_with_statistical_outliers):
         if x < mean + remove_all_vertices_above_sd_sigma_of * sd:
             list_of_vertices_without_SO.append(pointcloud_with_outliers["vertex"][index])
+
+
 
     print("Removed " + (len(quality_list_with_statistical_outliers) - len(
         list_of_vertices_without_SO)).__str__() + " outlier vertices")
 
     print("Creating PLY file now")
 
-    vertex = numpy.array(list_of_vertices_without_SO,
-                         dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('quality', 'f4')])
+
+    vertex = numpy.array(list_of_vertices_without_SO, dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('quality', 'f4')])
 
     new_ply_element = PlyElement.describe(vertex, "vertex")
 
     PlyData([new_ply_element]).write(output_file)
 
+    global poisson_disk_vertices
+    global ball_point_radius
     poisson_disk_vertices = len(list_of_vertices_without_SO) / 2
     ball_point_radius = mean + remove_all_vertices_above_sd_sigma_of * sd
 
     return True
+
+def get_quality_standard_deviation(input_file):
+    get_standard_deviation_of = 1.5  # In Standard Deviation sigma. E.g. 1 means remove all vertices that
+    # are above 68% of all vertex qualities, 2 means remove all above 95% ect. Default is 1.5 or 86%
+
+    file_exists = os.path.isfile(input_file)
+    if not file_exists:
+        return 0
+
+    pointcloud_with_outliers = PlyData.read(input_file)
+
+    quality_list_with_statistical_outliers = pointcloud_with_outliers['vertex'].data['quality']
+
+    mean = numpy.mean(quality_list_with_statistical_outliers, axis=0)
+    print("The mean of the vertex radius is: " + mean.__str__())
+    sd = numpy.std(quality_list_with_statistical_outliers, axis=0)
+    print("The Standard Deviation of the vertex radius is: " + sd.__str__())
+
+    return mean + get_standard_deviation_of * sd
+
+
 
 def userInterface ():
     print("Mesher for LiveScan3D by ChrisR")
@@ -346,10 +391,24 @@ def main_loop():
         write_custom_mlx_file_for_each_frame(cam_pose_data, number_of_depth_sensors)
 
         # Meshing
-        cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_multiple_files(coherent_frames,
-                                                                                                tempdir, path_to_individual_mesher_template,
-                                                                                                path_to_output, "meshed", ".obj", "")
-        meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
+        if not useSSPR:
+            cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_multiple_files(coherent_frames,
+                                                                                                    tempdir, path_to_individual_mesher_template,
+                                                                                                    path_to_output, "meshed", ".obj", "")
+            meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
+
+        else:
+
+            cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_multiple_files(coherent_frames, tempdir,
+                                                                                                    path_to_individual_mesher_template,
+                                                                                                    tempdir, "SSPR_with_SO", ".ply"," -m vq")
+            meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
+            temp_filenumber = list_of_files_to_process[current_frame_to_process].split(".")
+            remove_vertices_above_quality_of = get_quality_standard_deviation(cmd_for_meshlabserver_with_output_path[1])
+            write_custom_mlx_file_for_vertex_removal(remove_vertices_above_quality_of)
+            cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_single_file("SSPR_with_SO" + temp_filenumber[0] + ".ply",
+                                                                                                 tempdir, path_to_individual_vertex_reomver, path_to_output, "meshed", ".obj", "")
+            meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
 
         current_frame_to_process += number_of_depth_sensors
 
@@ -361,7 +420,7 @@ def main_loop():
 
         cleanup_files(temp_files_to_delete, [])
 
-    print("No more frames to process! Processed " + current_frame_to_process.__str__() + " frames. Program will perform cleanup & exit shortly")
+    print("No more frames to process! Processed " + (current_frame_to_process / number_of_depth_sensors).__str__() + " frames. Program will perform cleanup & exit shortly")
     cleanup_files([], [tempdir])
 
 

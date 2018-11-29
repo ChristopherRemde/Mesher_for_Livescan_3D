@@ -1,0 +1,10 @@
+<!DOCTYPE FilterScript>
+<FilterScript>
+ <filter name="Select by Vertex Quality">
+  <Param tooltip="Minimum acceptable quality value" name="minQ" min="0" value="1.22474" max="100000" type="RichDynamicFloat" description="Min Quality"/>
+  <Param tooltip="Maximum acceptable quality value" name="maxQ" min="0" value="100000" max="100000" type="RichDynamicFloat" description="Max Quality"/>
+  <Param tooltip="If true only the faces with &lt;b>all&lt;/b> the vertices within the specified range are selected. Otherwise any face with at least one vertex within the range is selected." name="Inclusive" value="true" type="RichBool" description="Inclusive Sel."/>
+ </filter>
+ <filter name="Delete Selected Vertices">
+ </filter>
+</FilterScript>
