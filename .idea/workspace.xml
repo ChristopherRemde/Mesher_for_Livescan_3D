@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f193cd1a-38f7-4ef7-9977-bf15e1e8a09f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Mesher.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Mesher.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Mesher_Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Mesher_Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/meshing_custom_template.mlx" beforeDir="false" afterPath="$PROJECT_DIR$/meshing_custom_template.mlx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/meshing_individual_frame.mlx" beforeDir="false" afterPath="$PROJECT_DIR$/meshing_individual_frame.mlx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/remove_vertices_above_individual_frame.mlx" beforeDir="false" afterPath="$PROJECT_DIR$/remove_vertices_above_individual_frame.mlx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,11 +21,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Mesher_Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="363" column="5" selection-start-line="363" selection-start-column="5" selection-end-line="363" selection-end-column="5" />
+            <state relative-caret-position="289">
+              <caret line="90" column="65" selection-start-line="90" selection-start-column="65" selection-end-line="90" selection-end-column="65" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
-                <element signature="e#10226#11281#0" />
               </folding>
             </state>
           </provider>
@@ -84,12 +79,12 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane" />
       <pane id="Scope" />
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="RSettings" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -173,19 +168,19 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4976852" visible="true" weight="0.09594883" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4976852" visible="true" weight="0.08155651" />
       <window_info id="Structure" order="1" sideWeight="0.5023148" side_tool="true" weight="0.09220232" />
       <window_info id="Favorites" order="2" sideWeight="0.5023148" side_tool="true" weight="0.09220232" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.39328277" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49946696" weight="0.46912244" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32907802" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50053304" side_tool="true" weight="0.46912244" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32907802" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -212,11 +207,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Mesher_Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="363" column="5" selection-start-line="363" selection-start-column="5" selection-end-line="363" selection-end-column="5" />
+        <state relative-caret-position="289">
+          <caret line="90" column="65" selection-start-line="90" selection-start-column="65" selection-end-line="90" selection-end-column="65" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#10226#11281#0" />
           </folding>
         </state>
       </provider>

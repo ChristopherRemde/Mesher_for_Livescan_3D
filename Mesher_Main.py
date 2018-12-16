@@ -9,7 +9,7 @@ working_dir = os.getcwd()
 
 # Settings
 path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
-path_to_liveScan3D_files: str = "C:\\Users\\ChrisSSD\\Desktop\\Bachelor\\LiveScan3D_Takes\\Kinect3_1\\"
+path_to_liveScan3D_files: str = "C:\\Users\\ChrisSSD\\Desktop\\Bachelor\\LiveScan3D_Takes\\Rainer_APose\\"
 path_to_mesher_script_template: str = working_dir + "\\mesher.mlx"
 path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
 path_to_individual_vertex_reomver = working_dir + "\\remove_vertices_above_individual_frame.mlx"
@@ -74,17 +74,24 @@ def get_list_of_liveScan3D_files():
 
 
 def get_number_of_depth_sensors_used(list_of_all_files):
-    previous_depth_sensor_number = 0
-    for frames in list_of_all_files:
-        frame_string: str = frames
-        number_of_current_depth_sensor = int(frame_string[5])
-        if number_of_current_depth_sensor + 1 > previous_depth_sensor_number:
-            previous_depth_sensor_number = number_of_current_depth_sensor +1
-        else:
-            print("Found: " + previous_depth_sensor_number.__str__() + " depth sensors")
-            if previous_depth_sensor_number == 0:
-                sys.exit("Couldn't compute number of depth sensors")
-            return previous_depth_sensor_number
+
+    path_to_camPose_file = path_to_liveScan3D_files + "CamPose.txt"
+
+    if os.path.isfile(path_to_camPose_file):
+
+        try:
+            camPose_json = open(path_to_camPose_file).read()
+
+            camPose_deserialized = json.loads(camPose_json)
+
+        except:
+
+            sys.exit("Error in JSON File format! Did you modify the File manually? Check for syntax errors! ")
+
+        return sum(len(v) for v in camPose_deserialized.values())
+
+    else:
+        sys.exit("camPose File not found, aborting!")
 
 
 def get_camera_positions_dic_from_file():
