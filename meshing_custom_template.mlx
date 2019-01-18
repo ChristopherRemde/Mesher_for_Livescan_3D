@@ -17,15 +17,6 @@
   <Param description="Flip normals w.r.t. viewpoint" name="flipFlag" tooltip="If the 'viewpoint' (i.e. scanner position) is known, it can be used to disambiguate normals orientation, so that all the normals will be oriented in the same direction." type="RichBool" value="true" />
   <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="-1.726637" y="-0.4432943" z="1.007949" />
  </filter>
- <filter name="Change the current layer">
-  <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="0" />
- </filter>
- <filter name="Compute normals for point sets">
-  <Param description="Neighbour num" name="K" tooltip="The number of neighbors used to estimate normals." type="RichInt" value="10" />
-  <Param description="Smooth Iteration" name="smoothIter" tooltip="The number of smoothing iteration done on the p used to estimate and propagate normals." type="RichInt" value="8" />
-  <Param description="Flip normals w.r.t. viewpoint" name="flipFlag" tooltip="If the 'viewpoint' (i.e. scanner position) is known, it can be used to disambiguate normals orientation, so that all the normals will be oriented in the same direction." type="RichBool" value="true" />
-  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="-1.726637" y="-0.4432943" z="1.007949" />
- </filter>
  <filter name="Flatten Visible Layers">
   <Param description="Merge Only Visible Layers" name="MergeVisible" tooltip="Merge the vertices that are duplicated among different layers. &lt;br&gt;Very useful when the layers are spliced portions of a single big mesh." type="RichBool" value="true" />
   <Param description="Delete Layers " name="DeleteLayer" tooltip="Delete all the merged layers. &lt;br&gt;If all layers are visible only a single layer will remain after the invocation of this filter" type="RichBool" value="true" />
