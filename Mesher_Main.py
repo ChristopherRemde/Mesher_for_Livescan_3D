@@ -5,7 +5,7 @@ import sys
 import json
 import xml.etree.ElementTree as ET
 
-working_dir = os.getcwd()
+working_dir = sys.path[0]
 
 # Settings
 path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
