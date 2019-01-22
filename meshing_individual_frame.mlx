@@ -6,7 +6,7 @@
   <Param description="Neighbour num" name="K" tooltip="The number of neighbors used to estimate normals." type="RichInt" value="10" />
   <Param description="Smooth Iteration" name="smoothIter" tooltip="The number of smoothing iteration done on the p used to estimate and propagate normals." type="RichInt" value="8" />
   <Param description="Flip normals w.r.t. viewpoint" name="flipFlag" tooltip="If the 'viewpoint' (i.e. scanner position) is known, it can be used to disambiguate normals orientation, so that all the normals will be oriented in the same direction." type="RichBool" value="true" />
-  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="-1.634647" y="-1.039775" z="1.864262" />
+  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="-1.726637" y="-0.4432943" z="1.007949" />
  </filter>
  <filter name="Change the current layer">
   <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="1" />
@@ -15,18 +15,9 @@
   <Param description="Neighbour num" name="K" tooltip="The number of neighbors used to estimate normals." type="RichInt" value="10" />
   <Param description="Smooth Iteration" name="smoothIter" tooltip="The number of smoothing iteration done on the p used to estimate and propagate normals." type="RichInt" value="8" />
   <Param description="Flip normals w.r.t. viewpoint" name="flipFlag" tooltip="If the 'viewpoint' (i.e. scanner position) is known, it can be used to disambiguate normals orientation, so that all the normals will be oriented in the same direction." type="RichBool" value="true" />
-  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="-0.3761696" y="2.288398" z="1.41622" />
+  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="1.618804" y="-0.1587889" z="1.054561" />
  </filter>
- <filter name="Change the current layer">
-  <Param description="Mesh" name="mesh" tooltip="The name of the current mesh" type="RichMesh" value="2" />
- </filter>
- <filter name="Compute normals for point sets">
-  <Param description="Neighbour num" name="K" tooltip="The number of neighbors used to estimate normals." type="RichInt" value="10" />
-  <Param description="Smooth Iteration" name="smoothIter" tooltip="The number of smoothing iteration done on the p used to estimate and propagate normals." type="RichInt" value="8" />
-  <Param description="Flip normals w.r.t. viewpoint" name="flipFlag" tooltip="If the 'viewpoint' (i.e. scanner position) is known, it can be used to disambiguate normals orientation, so that all the normals will be oriented in the same direction." type="RichBool" value="true" />
-  <Param description="Viewpoint Pos." name="viewPos" tooltip="The viewpoint position can be set by hand (i.e. getting the current viewpoint) or it can be retrieved from mesh camera, if the viewpoint position is stored there." type="RichPoint3f" x="2.528893" y="0.07837754" z="1.551827" />
- </filter>
- <filter name="Flatten Visible Layers" value="18733.5">
+ <filter name="Flatten Visible Layers" value="25205.5">
   <Param description="Merge Only Visible Layers" name="MergeVisible" tooltip="Merge the vertices that are duplicated among different layers. &lt;br&gt;Very useful when the layers are spliced portions of a single big mesh." type="RichBool" value="true" />
   <Param description="Delete Layers " name="DeleteLayer" tooltip="Delete all the merged layers. &lt;br&gt;If all layers are visible only a single layer will remain after the invocation of this filter" type="RichBool" value="true" />
   <Param description="Merge duplicate vertices" name="MergeVertices" tooltip="Merge the vertices that are duplicated among different layers. &#10;&#10;Very useful when the layers are spliced portions of a single big mesh." type="RichBool" value="false" />
@@ -46,7 +37,7 @@
   <Param description="Exact number of samples" name="ExactNumFlag" tooltip="If requested it will try to do a dicotomic search for the best poisson disk radius that will generate the requested number of samples with a tolerance of the 0.5%. Obviously it takes much longer." type="RichBool" value="true" />
   <Param description="Radius Variance" name="RadiusVariance" tooltip="The radius of the disk is allowed to vary between r and r*var. If this parameter is 1 the sampling is the same of the Poisson Disk Sampling" type="RichFloat" value="1" />
  </filter>
- <filter name="Delete Current Mesh" value="0.017453130916692317">
+ <filter name="Delete Current Mesh" value="0.012542595737613738">
  </filter>
  <xmlfilter name="Screened Poisson Surface Reconstruction">
   <xmlparam name="cgDepth" value="0" />

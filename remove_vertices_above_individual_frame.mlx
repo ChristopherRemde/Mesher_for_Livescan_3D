@@ -1,6 +1,6 @@
 <FilterScript>
  <filter name="Select by Vertex Quality">
-  <Param description="Min Quality" max="100000" min="0" name="minQ" tooltip="Minimum acceptable quality value" type="RichDynamicFloat" value="0.03675673995167017" />
+  <Param description="Min Quality" max="100000" min="0" name="minQ" tooltip="Minimum acceptable quality value" type="RichDynamicFloat" value="0.02564131421968341" />
   <Param description="Max Quality" max="100000" min="0" name="maxQ" tooltip="Maximum acceptable quality value" type="RichDynamicFloat" value="100000" />
   <Param description="Inclusive Sel." name="Inclusive" tooltip="If true only the faces with &lt;b&gt;all&lt;/b&gt; the vertices within the specified range are selected. Otherwise any face with at least one vertex within the range is selected." type="RichBool" value="true" />
  </filter>

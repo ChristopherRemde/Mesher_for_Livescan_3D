@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 working_dir = sys.path[0]
 
 # Settings
-path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
+path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab"
 path_to_liveScan3D_files: str = "C:\\Users\\ChrisSSD\\Desktop\\Bachelor\\LiveScan3D_Takes\\Rainer_APose\\"
 path_to_mesher_script_template: str = working_dir + "\\mesher.mlx"
 path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
@@ -16,8 +16,7 @@ path_to_individual_vertex_reomver = working_dir + "\\remove_vertices_above_indiv
 path_to_SOR_script: str = working_dir + "\\SOR.mlx"
 path_to_output: str = working_dir + "\\output\\"
 
-startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
-startUp_paths = [path_to_output, path_to_liveScan3D_files]
+
 
 # Global variables
 
@@ -265,7 +264,6 @@ def statistical_outlier_removal(input_file, output_file):
 
     list_of_vertices_without_SO = []
 
-
     for index, x in enumerate(quality_list_with_statistical_outliers):
         if x < mean + remove_all_vertices_above_sd_sigma_of * sd:
             list_of_vertices_without_SO.append(pointcloud_with_outliers["vertex"][index])
@@ -319,42 +317,86 @@ def userInterface ():
     global path_to_meshlab_dir
     ml_path = path_to_meshlab_dir[:]
     while ml_valid == False:
-        if check_path_and_file_integrity([], [ml_path]):
+
+        if check_path_and_file_integrity([], [ml_path + "\\"]):
             ml_valid = True
+            print("Valid Meshlab install detected!")
         else:
             print("Couldn't find Meshlab!")
             ml_path = input("Please enter your Meshlab Path: ")
 
-    path_to_meshlab_dir = ml_path
+    path_to_meshlab_dir = ml_path + "\\"
 
     ip_path = ""
     ip_valid = False
     while ip_valid == False:
+        ip_path = input("Please enter the Path to the output of the LiveScan3D .PLY Files: ")
         if check_path_and_file_integrity([], [ip_path]):
             ip_valid = True
         else:
-            print("Couldn't find Meshlab!")
-            ip_path = input("Please enter the Path to the Meshlab .PLY Files: ")
+            print("Couldn't find valid .PLY files!")
+
 
     global path_to_liveScan3D_files
-    path_to_liveScan3D_files = ml_path
+    path_to_liveScan3D_files = ip_path + "\\"
 
-    yn = input("Do you want to use Poisson Reconstruction? (y/n): ")
+    sspr_valid = False
 
-    if yn == "y":
-        global useSSPR
-        useSSPR = True
-    elif yn == "n":
-        useSSPR = False
+    while sspr_valid == False:
+        yn = input("Do you want to use Poisson Reconstruction? It is strongly recommended, otherwise Ball Pivoting Reconstruction will be used! (y/n): ")
+
+        if yn == "y":
+            global useSSPR
+            useSSPR = True
+            sspr_valid = True
+        elif yn == "n":
+            useSSPR = False
+            sspr_valid = True
+        else:
+            print("Invalid input, please enter ""y"" or ""n""!")
+
+    output_path = ""
+    output_valid = False
+
+    while output_valid == False:
+        output_path = input("Please enter an output path where the processed files should be safed: ")
+
+        if check_path_and_file_integrity([], [output_path]):
+            output_valid = True
+        else:
+            print("Error, path not found on system! Please enter a valid existing directory!")
+
+    global path_to_output
+    path_to_output = output_path + "\\"
+
+    print("These are your choosen Settings:")
+    print("Files from LiveScan3D located at: " + path_to_liveScan3D_files)
+    if useSSPR:
+        print("Poisson Reconstruction is enabled")
     else:
-        print("Invalid input!")
-        sys.exit("Invalid Input!")
+        print("Poisson Reconstruction is disabled, will use Ball Pivoting Reconstruction instead!")
+    print("Processed Files will be safed at: " + path_to_output)
 
+    start_reconstruction = False
+
+    while start_reconstruction == False:
+        confirmation = input("Do you want to process the files using these settings? If you choose no, programm will exit(y/n)")
+        if confirmation == "y":
+            print("Meshing is about to start!")
+            start_reconstruction = True
+        elif confirmation == "n":
+            sys.exit("Program will exit now!")
+        else:
+            print("Invalid input, please enter ""y"" or ""n""!")
+
+    main_loop()
 
 def main_loop():
 
     check_dir_make_dir(path_to_output)
     # Check if paths and files are valid
+    startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
+    startUp_paths = [path_to_output, path_to_liveScan3D_files]
     if not check_path_and_file_integrity(startUp_files, startUp_paths):
         sys.exit("Startup files and paths are not vallid!")
 
@@ -430,5 +472,5 @@ def main_loop():
     print("No more frames to process! Processed " + (current_frame_to_process / number_of_depth_sensors).__str__() + " frames. Program will perform cleanup & exit shortly")
     cleanup_files([], [tempdir])
 
-
-main_loop()
+userInterface()
+#main_loop()
