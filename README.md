@@ -5,5 +5,7 @@ Mesher for LiveScan3D is a Meshlab-based app that allows you to process pointclo
 
 ## Quick-Start
 You need to install Meshlab v2016.12 on your computer: https://github.com/cnr-isti-vclab/meshlab/releases/tag/v2016.12
+
 To get the current release of Mesher for LiveScan 3D, click on the "Releases" Tab. Note that currently only x64 Windows is supported. Download the .exe and open it. The command-line interface will guide you through the rest of the process. The paths you need to input can be simply copy and pasted from your windows explorer.
+
 **Note!** Only files generated with the special version of LiveScan3D are supported, make sure to use it while recording! 
