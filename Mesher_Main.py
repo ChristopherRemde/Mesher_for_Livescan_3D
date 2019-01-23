@@ -1,3 +1,14 @@
+def show_exception_and_exit(exc_type, exc_value, tb):
+    import traceback
+    traceback.print_exception(exc_type, exc_value, tb)
+    input("Press key to exit.")
+    sys.exit(-1)
+
+import sys
+sys.excepthook = show_exception_and_exit  #Stops the windows from immidiatly closing when a crash happens
+
+
+
 import os
 from plyfile import PlyData, PlyElement
 import numpy
@@ -8,13 +19,13 @@ import xml.etree.ElementTree as ET
 working_dir = sys.path[0]
 
 # Settings
-path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab"
-path_to_liveScan3D_files: str = "C:\\Users\\ChrisSSD\\Desktop\\Bachelor\\LiveScan3D_Takes\\Rainer_APose\\"
-path_to_mesher_script_template: str = working_dir + "\\mesher.mlx"
+path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
+path_to_liveScan3D_files: str = "C:\\Users\ChrisSSD\Desktop\TexturePipeLineTest\\"
+path_to_mesher_script_template: str = working_dir + "\\mesher_template.mlx"
 path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
 path_to_individual_vertex_reomver = working_dir + "\\remove_vertices_above_individual_frame.mlx"
 path_to_SOR_script: str = working_dir + "\\SOR.mlx"
-path_to_output: str = working_dir + "\\output\\"
+path_to_output: str = "C:\\Users\ChrisSSD\Desktop\Output\\"
 
 
 
@@ -87,7 +98,7 @@ def get_number_of_depth_sensors_used(list_of_all_files):
 
             sys.exit("Error in JSON File format! Did you modify the File manually? Check for syntax errors! ")
 
-        return sum(len(v) for v in camPose_deserialized.values())
+        return int((sum(len(v) for v in camPose_deserialized.values())) / 2)
 
     else:
         sys.exit("camPose File not found, aborting!")
@@ -116,7 +127,7 @@ def get_camera_positions_dic_from_file():
 
 def write_custom_mlx_file_template(number_of_cameras):
 
-    mlx_doc = ET.parse('mesher_template.mlx')  # Get the mlx template
+    mlx_doc = ET.parse(path_to_mesher_script_template)  # Get the mlx template
     root = mlx_doc.getroot()
 
     mlx_change_current_layer = root[0]
@@ -164,9 +175,10 @@ def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
     for cameras in range(number_of_cameras):  # Start the document by adding all the normal calculations for each cam
 
         root[child_counter][0].set("value", str(cameras))
-        root[child_counter + 1][3].set("x", str(camera_positions["camPoses"][cameras]["x"]))
-        root[child_counter + 1][3].set("y", str(camera_positions["camPoses"][cameras]["y"]))
-        root[child_counter + 1][3].set("z", str(camera_positions["camPoses"][cameras]["z"]))
+        root[child_counter + 1][3].set("x", str(camera_positions["camPositions"][cameras]["x"]))
+        root[child_counter + 1][3].set("y", str(camera_positions["camPositions"][cameras]["y"]))
+        root[child_counter + 1][3].set("z", str(camera_positions["camPositions"][cameras]["z"]))
+
 
         if cameras != (number_of_cameras - 1):  # Only increment the childcounter if there are more values to set in the loop
             child_counter += 2
@@ -179,7 +191,7 @@ def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
 
 def write_custom_mlx_file_for_vertex_removal(remove_vertices_above):
 
-    mlx_custom_doc = ET.parse("custom_vertex_removal_template.mlx")
+    mlx_custom_doc = ET.parse(working_dir + "\\" + "custom_vertex_removal_template.mlx")
     root = mlx_custom_doc.getroot()
     root[0][0].set("value", str(remove_vertices_above))
 
@@ -330,11 +342,11 @@ def userInterface ():
     ip_path = ""
     ip_valid = False
     while ip_valid == False:
-        ip_path = input("Please enter the Path to the output of the LiveScan3D .PLY Files: ")
+        ip_path = input("Please enter the Path to the output of the LiveScan3D .PLY Files (WARNING: Make sure that your path doesn't contain any whitespaces!): ")
         if check_path_and_file_integrity([], [ip_path]):
             ip_valid = True
         else:
-            print("Couldn't find valid .PLY files!")
+            print("Couldn't find valid .PLY directory!")
 
 
     global path_to_liveScan3D_files
@@ -395,7 +407,7 @@ def main_loop():
 
     check_dir_make_dir(path_to_output)
     # Check if paths and files are valid
-    startUp_files = [path_to_meshlab_dir + "meshlabserver.exe", path_to_mesher_script_template, path_to_SOR_script]
+    startUp_files = [path_to_meshlab_dir + "meshlabserver.exe"]
     startUp_paths = [path_to_output, path_to_liveScan3D_files]
     if not check_path_and_file_integrity(startUp_files, startUp_paths):
         sys.exit("Startup files and paths are not vallid!")
