@@ -5,7 +5,7 @@ def show_exception_and_exit(exc_type, exc_value, tb):
     sys.exit(-1)
 
 import sys
-sys.excepthook = show_exception_and_exit  #Stops the windows from immidiatly closing when a crash happens
+sys.excepthook = show_exception_and_exit  #Stops the windows from immidiatily closing when a crash happens
 
 
 
@@ -16,14 +16,21 @@ import sys
 import json
 import xml.etree.ElementTree as ET
 
-working_dir = sys.path[0]
+if getattr(sys, 'frozen', False):
+    # If the application is run as a bundle, the pyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app
+    # path into variable _MEIPASS'.
+    working_dir = sys._MEIPASS
+else:
+    working_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Settings
 path_to_meshlab_dir = "C:\Program Files\VCG\MeshLab\\"
 path_to_liveScan3D_files: str = "C:\\Users\ChrisSSD\Desktop\TexturePipeLineTest\\"
 path_to_mesher_script_template: str = working_dir + "\\mesher_template.mlx"
+path_to_vertex_remover_template: str = working_dir + "\\custom_vertex_removal_template.mlx"
 path_to_individual_mesher_template: str = working_dir + "\\meshing_individual_frame.mlx"
-path_to_individual_vertex_reomver = working_dir + "\\remove_vertices_above_individual_frame.mlx"
+path_to_individual_vertex_remover = working_dir + "\\remove_vertices_above_individual_frame.mlx"
 path_to_SOR_script: str = working_dir + "\\SOR.mlx"
 path_to_output: str = "C:\\Users\ChrisSSD\Desktop\Output\\"
 
@@ -164,11 +171,11 @@ def write_custom_mlx_file_template(number_of_cameras):
     else:
         root.append(mlx_ball_pivoting)
 
-    mlx_doc.write("meshing_custom_template.mlx")
+    mlx_doc.write(working_dir + "\\meshing_custom_template.mlx")
 
 
 def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
-    mlx_custom_doc = ET.parse('meshing_custom_template.mlx')  # Get the mlx template
+    mlx_custom_doc = ET.parse(working_dir + "\\meshing_custom_template.mlx")  # Get the mlx template
     root = mlx_custom_doc.getroot()
 
     child_counter = 0
@@ -186,16 +193,16 @@ def write_custom_mlx_file_for_each_frame(camera_positions, number_of_cameras):
     root[child_counter + 2].set("value", str(poisson_disk_vertices))
     root[child_counter + 4].set("value", str(ball_point_radius))
 
-    mlx_custom_doc.write("meshing_individual_frame.mlx")
+    mlx_custom_doc.write(working_dir + "\\meshing_individual_frame.mlx")
 
 
 def write_custom_mlx_file_for_vertex_removal(remove_vertices_above):
 
-    mlx_custom_doc = ET.parse(working_dir + "\\" + "custom_vertex_removal_template.mlx")
+    mlx_custom_doc = ET.parse(path_to_vertex_remover_template)
     root = mlx_custom_doc.getroot()
     root[0][0].set("value", str(remove_vertices_above))
 
-    mlx_custom_doc.write("remove_vertices_above_individual_frame.mlx")
+    mlx_custom_doc.write(working_dir + "\\remove_vertices_above_individual_frame.mlx")
 
 
 
@@ -468,7 +475,7 @@ def main_loop():
             remove_vertices_above_quality_of = get_quality_standard_deviation(cmd_for_meshlabserver_with_output_path[1])
             write_custom_mlx_file_for_vertex_removal(remove_vertices_above_quality_of)
             cmd_for_meshlabserver_with_output_path = meshlabserver_cmd_promt_creator_single_file("SSPR_with_SO" + temp_filenumber[0] + ".ply",
-                                                                                                 tempdir, path_to_individual_vertex_reomver, path_to_output, "meshed", ".obj", "")
+                                                                                                 tempdir, path_to_individual_vertex_remover, path_to_output, "meshed", ".obj", "")
             meshlabserver_supervisor(cmd_for_meshlabserver_with_output_path[0], cmd_for_meshlabserver_with_output_path[1])
 
         current_frame_to_process += number_of_depth_sensors
@@ -483,6 +490,7 @@ def main_loop():
 
     print("No more frames to process! Processed " + (current_frame_to_process / number_of_depth_sensors).__str__() + " frames. Program will perform cleanup & exit shortly")
     cleanup_files([], [tempdir])
+
 
 userInterface()
 #main_loop()
