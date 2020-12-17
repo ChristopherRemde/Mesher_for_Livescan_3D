@@ -1,8 +1,7 @@
 # Mesher for Livescan 3D
 
 ## Summary
-Mesher for LiveScan3D is a Meshlab-based app that allows you to process pointcloud files generated with a special version of LiveScan3D to a polygonal mesh. The special version can be found here: https://github.com/ChristopherRemde/LiveScan3D
-
+Mesher for LiveScan3D is a Meshlab-based app that allows you to process pointcloud files generated with a special version of LiveScan3D to a polygonal mesh. The special version can be found here: https://github.com/ChristopherRemde/LiveScan3D (You need to switch the branch to "CameraPoseExport")
 ## Quick-Start
 You need to install Meshlab v2016.12 on your computer: https://github.com/cnr-isti-vclab/meshlab/releases/tag/v2016.12
 
